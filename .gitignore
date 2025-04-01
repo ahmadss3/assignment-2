@@ -1,0 +1,7 @@
+# Ignore credential files
+assignment-2-firebasekey.json
+
+# Cache or build outputs
+*.exe
+*.test
+/build/
