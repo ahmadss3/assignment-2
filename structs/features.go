@@ -13,3 +13,17 @@ type Features struct {
 	// wants to see exchange rates relative to the country's base currency.
 
 }
+
+// NewFeatures creates a Features struct with a guaranteed empty slice for TargetCurrencies
+// instead of nil.
+func NewFeatures() Features {
+	return Features{
+		Temperature:      false,
+		Precipitation:    false,
+		Capital:          false,
+		Coordinates:      false,
+		Population:       false,
+		Area:             false,
+		TargetCurrencies: []string{},
+	}
+}
