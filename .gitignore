@@ -5,3 +5,4 @@ assignment-2-firebasekey.json
 *.exe
 *.test
 /build/
+*.pem
