@@ -17,28 +17,6 @@ This project is a RESTful web service in Go. It manages dashboard configurations
    - Endpoint: http://129.241.150.113:9090/currency/
    - Documentation: http://129.241.150.113:9090/
 
-# Architecture & Data Flow
-
-
-                         +---------------------------+
-                         |         Firestore        |
-                         | (Registrations, Notifications, Cache)     
-+------------+           |---------------------------|
-|  External  |           |                           |
-|  Clients   | --->  +---v-----------------------+   |
-| (Postman,  |       |  Go REST API (Handlers)   |   |
-|  Browser)  | <---  | /dashboard/v1/...         |   |
-+------------+       +-------------+-------------+   |
-                         ^          |                |
-                         |          |                |
-                         |          |(Cached)        |
-                         |          |                |
-+------------------+     |    +-----+------------+   |
-|   REST Countries |     |    |   External APIs  |   |
-+------------------+     |    | - Open-Meteo     |   |
-                          \---> - Currency API   +---+
-
-
 ---
 # External Clients interact via HTTP endpoints (POST /registrations, GET /dashboards/{id}, etc.).
 
@@ -523,4 +501,3 @@ When an event triggers (e.g., `REGISTER`, `CHANGE`, `DELETE`, or `INVOKE`), the 
 ---
 # Caching & Periodic Purging
 - Country data and other external responses can be cached in Firestore to reduce overhead.
-- A background goroutine purges stale cache entries older than 24 hours.
