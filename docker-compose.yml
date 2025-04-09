@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=${PORT}
+    volumes:
+      - .:/go/src/assignment-2
+      - go_mod_cache:/go/pkg/mod
+    restart: unless-stopped
+
+
+volumes:
+  go_mod_cache:
