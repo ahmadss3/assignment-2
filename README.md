@@ -91,7 +91,7 @@ Should return a JSON with countries_api, currency_api, meteo_api, notification_d
 # openstack:
 you can run the the project by using this url:
 ~~~
-http://10.212.174.26:8080/dashboard/v1/status
+http://10.212.174.26:8080/dashboard/v1/
 ~~~
 ## important: must use the NTNU network to run the provided url
 ---
