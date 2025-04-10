@@ -74,7 +74,7 @@ Should return a JSON with countries_api, currency_api, meteo_api, notification_d
 ---
 ## Openstack (IAAS)
  - The easiest way to access the assignment is by using the official deployment.
- - Use the following URL to access the API:  http://10.212.174.26:8080/dashboard/v1/
+ - Use the following URL to access the API:  http://10.212.174.26:8080/dashboard/v1/status
 ~~~
 
 Note: You must use the NTNU network to run the provided url
