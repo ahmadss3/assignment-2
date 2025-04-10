@@ -1,13 +1,13 @@
 # Assignment-2 (group err)
----
 
-# Overview
+
+## Overview
 
 This project is a RESTful web service in Go. It manages dashboard configurations (registrations) and dynamically populates dashboards with real-time data from multiple external APIs, including REST Countries, Open-Meteo, and a Currency API. Users can specify which features (temperature, precipitation, population, etc.) should appear on the resulting dashboards, and the service then merges and returns the appropriate information. It also provides a notifications mechanism for registering webhooks that trigger on certain events, such as creating, updating, deleting, or invoking a dashboard configuration. The service employs Firestore (Firebase) for persistent storage of configurations, ensures caching to minimize external calls, and includes a status endpoint for health checks and uptime monitoring. Additionally, the entire service is dockerized and deployed to a VM on OpenStack.
 
 ---
 
-# External services
+## External services
  - REST Countries API
    - Endpoint: http://129.241.150.113:8080/v3.1
    - Documentation: http://129.241.150.113:8080/
@@ -18,47 +18,53 @@ This project is a RESTful web service in Go. It manages dashboard configurations
    - Documentation: http://129.241.150.113:9090/
 
 ---
-# External Clients interact via HTTP endpoints (POST /registrations, GET /dashboards/{id}, etc.).
+## External Clients communicate via HTTP endpoints
 
-1- The Go REST API handles these requests, pulling and merging data from:
-
-2- Firestore (for saved configurations, notifications, cache).
-
-3- External APIs when not cached or when fresh data is needed.
-
-4- Notifications are triggered upon certain events, causing POST calls to user-registered webhook URLs.
-
-5- A Status Handler checks health of external APIs and Firestore.
+- The Go REST API processes incoming requests by:
+  1. Retrieving and merging data from Firestore (for configurations, notifications, and caching).
+  2. Calling external APIs when data is missing from the cache or requires updating.
+  3. Triggering notifications on specific events, which send POST requests to user-registered webhook URLs.
+  4. Running a Status Handler that verifies the health of both Firestore and external APIs.
 
 
-# Prerequisites
+## Prerequisites
 
-1- Go (a stable version) if you plan to build/run locally (without Docker).
+1. Go (a stable version 1.23.4 recommended) if you plan to build/run locally (without Docker).
 
-2- A valid Firebase service account key (placed in the project root), or a configured environment for Firestore credentials.
+2. A valid Firebase service account key (placed in the project root), or a configured environment for Firestore credentials.
 
-3- Docker installed, if you want to build and run the container.
+3. OpenStack (SkyHigh) access, if you plan to deploy there.
 
-4- OpenStack (SkyHigh) access, if you plan to deploy there.
+4. Docker installed, if you want to build and run the container.
+
 
 --- 
 
-# Local Setup & Running
+## Local Setup & Running
 
-## Clone the repository:
+### Clone the repository:
 ~~~
 git clone https://github.com/ahmadss3/assignment-2.git
 ~~~
+### Setup Firestore 
 
-## Install dependencies
-## firestore account with valid key
+   - Create a Firebase Project by signing up at https://firebase.google.com/
+   - In your Firebase project settings, create a service account key (JSON) with permissions to read and write data in Firestore.
+   - Name it assignment-2-firebasekey.json
+   - Put the JSON file in the project root so the application can load it (IMPORTANT: Add assignment-2-firebasekey.json to your .gitignore and never commit or push it).
 
-## Run the service locally:
+
+### Install dependencies
+~~~
+go mod tidy 
+~~~
+
+### Run the service locally:
 ~~~
 go run ./cmd/main.go
 ~~~
 
-## Verify:
+### Verify:
 ~~~
 http://localhost:8080/dashboard/v1/status/
 ~~~
@@ -66,56 +72,63 @@ http://localhost:8080/dashboard/v1/status/
 Should return a JSON with countries_api, currency_api, meteo_api, notification_db, etc.
 
 ---
-# openstack:
-you can run the the project by using this url:
-~~~
-http://10.212.174.26:8080/dashboard/v1/
-~~~
-## important: must use the NTNU network to run the provided url
----
-# Running the Service with Docker:
-## NOTE:
-this service uses Firestore (a database service within Google’s Firebase) to store:
+## Openstack (IAAS)
+Note: You must use the NTNU network to run the provided url
 
- - Dashboard registrations
- - Webhook notifications
- - Cached data
+### Running the Service with Docker:
+- This service uses Firestore (a database service within Google’s Firebase) to store:
 
-- You must have a Firebase project set up that includes Firestore. That way, the service can connect to a live Firestore database and persist all necessary information.
+  1. Dashboard registrations
+  2. Webhook notifications
+  3. Cached data
 
-- How to Set Up Firestore:
-   - Create a Firebase Project by signing up at https://firebase.google.com/
-   - In your Firebase project settings, create a service account key (JSON) with permissions to read and write data in Firestore.
-   - Name it something like assignment-2-firebasekey.json.
-   - Put the JSON file in the project root so the application can load it (IMPORTANT: Add firebasekey.json to your .gitignore and never commit or push it).
-   - Copy the JSON file into the Docker image (see the Dockerfile) or mount it as a volume so the container can access it.
+- (see setup firestore above)
 
-## building locally (assuming you have cloned the project folder and are in its root directory):
+### Building with docker:
+- (assuming you have cloned the project folder as described above)
+
+### Adding the credentials file
+
+- After cloning you should copy the credential files you made in the local setup into the server, exactly at the root directory of the cloned project
+
+
+### Run the Container:
+- Move into the project directory
 ~~~
-docker build -t assignment-2 .
+cd assignment-2
+~~~
+- Build and run the container detached (remove the -d to only run the container and see the log output)
+- Use the appropriate command based on your docker setup
+~~~
+sudo docker-compose up --build -d
+~~~
+~~~
+sudo docker compose up --build -d
 ~~~
 
-## Run the Container:
-~~~
-docker run -d -p 8080:8080 --name assignment-2 assignment-2
-~~~
-
-## Verify the Service:
+### Verify the Service:
 Once the container is up, open your browser or use a tool like Postman to access:
+- For local test run: 
 ~~~
 http://localhost:8080/dashboard/v1/
 ~~~
+- In the server run:
+~~~
+curl http://localhost:8080/dashboard/v1/
+~~~
+- From outside run: 
+~~~
+http://{server ip}/dashboard/v1/
+~~~
 
-### 
 Once the container is running and responding to HTTP requests on localhost:8080, you can proceed to test all endpoints – like creating registrations, retrieving dashboards, or registering notifications.
 
 ---
 
----
 
-# Endpoints & Usage
+## Endpoints & Usage
 
-## Registrations
+### Registrations
 - Create, retrieve, update, patch, and delete dashboard configurations that specify the data features (temperature, population, area, etc.) for a given country or ISO code.
 - Stored persistently in Firestore (Firebase).
 
@@ -307,7 +320,7 @@ Deletes a dashboard configuration.
 
 ---
 
-## Dashboards
+### Dashboards
 - Dynamically merges real-time data from:
   - REST Countries (capital, population, area, lat/long, base currency, etc.)
   - Open-Meteo (temperature & precipitation)
@@ -480,7 +493,7 @@ Checks the health of external APIs, notification database, and shows service upt
 
 ---
 
-## Webhook Invocation Format
+### Webhook Invocation Format
 
 When an event triggers (e.g., `REGISTER`, `CHANGE`, `DELETE`, or `INVOKE`), the service sends a `POST` request to each matching webhook, using JSON like:
 ~~~
